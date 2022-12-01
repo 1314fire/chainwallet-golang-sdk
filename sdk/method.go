@@ -13,7 +13,7 @@ type ChainAndCoinReq struct {
 	CompanyId uint64 `json:"company_id"`
 }
 
-type CoinSymbolRes struct {
+type CoinSymbolData struct {
 	CoinName  string `json:"coin_name"`
 	CoinType  int64  `json:"coin_type"`
 	Support   uint8  `json:"support"`
@@ -23,9 +23,14 @@ type CoinSymbolRes struct {
 	Precision int32  `json:"precision"`
 	Main      int8   `json:"main"`
 }
+type CoinSymbolRes struct {
+	Code string           `json:"code"`
+	Msg  string           `json:"msg"`
+	Data []CoinSymbolData `json:"data"`
+}
 
 //获取网络和币的配置表
-func (c *Client) ChainAndCoin(req *ChainAndCoinReq) ([]CoinSymbolRes, error) {
+func (c *Client) ChainAndCoin(req *ChainAndCoinReq) ([]CoinSymbolData, error) {
 	url := fmt.Sprintf("%s/%s", c.BaseUrl, "finance/chain_coin")
 	bd, err := json.Marshal(req)
 	if err != nil {
@@ -43,13 +48,14 @@ func (c *Client) ChainAndCoin(req *ChainAndCoinReq) ([]CoinSymbolRes, error) {
 	if err != nil {
 		return nil, err
 	}
-	var res JSONResponse
-	res.Data = []CoinSymbolRes{}
+	//fmt.Println("res:", rs)
+	var res CoinSymbolRes
+	//res.Data = []CoinSymbolRes{}
 	json.Unmarshal([]byte(rs), &res)
 	if res.Code != RS_OK {
 		return nil, errors.New(res.Msg)
 	}
-	return res.Data.([]CoinSymbolRes), nil
+	return res.Data, nil
 }
 
 //转账
@@ -278,6 +284,7 @@ func (c *Client) GetGasPrice(req *GetGasPriceReq) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	//fmt.Println("rs:", rs)
 	var res JSONResponse
 	json.Unmarshal([]byte(rs), &res)
 	if res.Code != RS_OK {
@@ -359,7 +366,7 @@ type CollectBalanceReq struct {
 	AppId      string `json:"app_id"`
 }
 
-type CollectBalanceRes struct {
+type CollectBalanceData struct {
 	Addr        string `protobuf:"bytes,1,opt,name=addr,proto3" json:"addr,omitempty"`
 	TotalAmount string `protobuf:"bytes,2,opt,name=totalAmount,proto3" json:"totalAmount,omitempty"`
 	FrozeAmount string `protobuf:"bytes,3,opt,name=frozeAmount,proto3" json:"frozeAmount,omitempty"`
@@ -368,9 +375,14 @@ type CollectBalanceRes struct {
 	CoinType    int32  `protobuf:"varint,6,opt,name=coinType,proto3" json:"coinType,omitempty"`
 	ChainType   int32  `protobuf:"varint,7,opt,name=chainType,proto3" json:"chainType,omitempty"`
 }
+type CollectBalanceRes struct {
+	Code string               `json:"code"`
+	Msg  string               `json:"msg"`
+	Data []CollectBalanceData `json:"data"`
+}
 
-func (c *Client) CollectBalance(req *CollectBalanceReq) ([]CollectBalanceRes, error) {
-	url := fmt.Sprintf("%s/%s", c.BaseUrl, "finance/getMerchantCollectBalances")
+func (c *Client) CollectBalance(req *CollectBalanceReq) ([]CollectBalanceData, error) {
+	url := fmt.Sprintf("%s/%s", c.BaseUrl, "finance/getMerchantCollectBalance")
 	bd, err := json.Marshal(req)
 	if err != nil {
 		return nil, err
@@ -387,13 +399,13 @@ func (c *Client) CollectBalance(req *CollectBalanceReq) ([]CollectBalanceRes, er
 	if err != nil {
 		return nil, err
 	}
-	var res JSONResponse
-	res.Data = []CollectBalanceRes{}
+	//fmt.Println("res:", rs)
+	var res CollectBalanceRes
 	json.Unmarshal([]byte(rs), &res)
 	if res.Code != RS_OK {
 		return nil, errors.New(res.Msg)
 	}
-	return res.Data.([]CollectBalanceRes), nil
+	return res.Data, nil
 }
 
 //获取用户余额
@@ -402,7 +414,7 @@ type UserBalanceReq struct {
 	AppId      string `json:"app_id"`
 	Uid        string `json:"uid"`
 }
-type UserBalanceRes struct {
+type UserBalanceData struct {
 	Addr        string `protobuf:"bytes,1,opt,name=addr,proto3" json:"addr,omitempty"`
 	TotalAmount string `protobuf:"bytes,2,opt,name=totalAmount,proto3" json:"totalAmount,omitempty"`
 	FrozeAmount string `protobuf:"bytes,3,opt,name=frozeAmount,proto3" json:"frozeAmount,omitempty"`
@@ -411,8 +423,13 @@ type UserBalanceRes struct {
 	CoinType    int32  `protobuf:"varint,6,opt,name=coinType,proto3" json:"coinType,omitempty"`
 	ChainType   int32  `protobuf:"varint,7,opt,name=chainType,proto3" json:"chainType,omitempty"`
 }
+type UserBalanceRes struct {
+	Code string            `json:"code"`
+	Msg  string            `json:"msg"`
+	Data []UserBalanceData `json:"data"`
+}
 
-func (c *Client) UserBalance(req *UserBalanceReq) ([]UserBalanceRes, error) {
+func (c *Client) UserBalance(req *UserBalanceReq) ([]UserBalanceData, error) {
 	url := fmt.Sprintf("%s/%s", c.BaseUrl, "finance/getUserBalance")
 	bd, err := json.Marshal(req)
 	if err != nil {
@@ -430,13 +447,12 @@ func (c *Client) UserBalance(req *UserBalanceReq) ([]UserBalanceRes, error) {
 	if err != nil {
 		return nil, err
 	}
-	var res JSONResponse
-	res.Data = []UserBalanceRes{}
+	var res UserBalanceRes
 	json.Unmarshal([]byte(rs), &res)
 	if res.Code != RS_OK {
 		return nil, errors.New(res.Msg)
 	}
-	return res.Data.([]UserBalanceRes), nil
+	return res.Data, nil
 }
 
 //获取提币订单详情
@@ -495,7 +511,7 @@ type WithdrawOrderListReq struct {
 	PageNum      int    `json:"page_num"`
 	TransferType int32  `json:"transfer_type"`
 }
-type WithdrawOrderListRes struct {
+type WithdrawOrderListData struct {
 	Amount      string `json:"amount"`
 	CoinType    int    `json:"coin_type"`
 	CreatedAt   string `json:"created_at"`
@@ -505,7 +521,13 @@ type WithdrawOrderListRes struct {
 	TxId        string `json:"tx_id"`
 }
 
-func (c *Client) WithdrawOrderList(req *WithdrawOrderListReq) (*WithdrawOrderListRes, error) {
+type WithdrawOrderListRes struct {
+	Code string                  `json:"code"`
+	Msg  string                  `json:"msg"`
+	Data []WithdrawOrderListData `json:"data"`
+}
+
+func (c *Client) WithdrawOrderList(req *WithdrawOrderListReq) ([]WithdrawOrderListData, error) {
 	url := fmt.Sprintf("%s/%s", c.BaseUrl, "finance/findWithdrawOrderList")
 	bd, err := json.Marshal(req)
 	if err != nil {
@@ -523,14 +545,12 @@ func (c *Client) WithdrawOrderList(req *WithdrawOrderListReq) (*WithdrawOrderLis
 	if err != nil {
 		return nil, err
 	}
-	//var res CheckPaymentRes
-	var res JSONResponse
-	res.Data = &WithdrawOrderListRes{}
+	var res WithdrawOrderListRes
 	json.Unmarshal([]byte(rs), &res)
 	if res.Code != RS_OK {
 		return nil, errors.New(res.Msg)
 	}
-	return res.Data.(*WithdrawOrderListRes), nil
+	return res.Data, nil
 }
 
 //获取存币订单列表
@@ -541,7 +561,7 @@ type DeposOrderListReq struct {
 	PageNum      int    `json:"page_num"`
 	TransferType int32  `json:"transfer_type"`
 }
-type DeposOrderListRes struct {
+type DeposOrderListData struct {
 	Amount      string `json:"amount"`
 	CoinType    int    `json:"coin_type"`
 	CreatedAt   string `json:"created_at"`
@@ -550,8 +570,13 @@ type DeposOrderListRes struct {
 	ToAddr      string `json:"to_addr"`
 	TxId        string `json:"tx_id"`
 }
+type DeposOrderListRes struct {
+	Code string               `json:"code"`
+	Msg  string               `json:"msg"`
+	Data []DeposOrderListData `json:"data"`
+}
 
-func (c *Client) DeposOrderList(req *DeposOrderListReq) (*DeposOrderListRes, error) {
+func (c *Client) DeposOrderList(req *DeposOrderListReq) ([]DeposOrderListData, error) {
 	url := fmt.Sprintf("%s/%s", c.BaseUrl, "finance/findDeposOrderList")
 	bd, err := json.Marshal(req)
 	if err != nil {
@@ -570,13 +595,12 @@ func (c *Client) DeposOrderList(req *DeposOrderListReq) (*DeposOrderListRes, err
 		return nil, err
 	}
 	//var res CheckPaymentRes
-	var res JSONResponse
-	res.Data = &DeposOrderListRes{}
+	var res DeposOrderListRes
 	json.Unmarshal([]byte(rs), &res)
 	if res.Code != RS_OK {
 		return nil, errors.New(res.Msg)
 	}
-	return res.Data.(*DeposOrderListRes), nil
+	return res.Data, nil
 }
 
 // 查询支持的所有链类型和币类型
