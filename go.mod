@@ -1,4 +1,4 @@
-module chainwallet
+module chainwallet-golang-sdk
 
 go 1.18
 
