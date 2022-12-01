@@ -8,6 +8,11 @@ import (
 	"github.com/shopspring/decimal"
 )
 
+type ChainAndCoinReq struct {
+	AppId     string `json:"app_id"`
+	CompanyId uint64 `json:"company_id"`
+}
+
 type CoinSymbolRes struct {
 	CoinName  string `json:"coin_name"`
 	CoinType  int64  `json:"coin_type"`
@@ -20,15 +25,21 @@ type CoinSymbolRes struct {
 }
 
 //获取网络和币的配置表
-func (c *Client) ChainAndCoin() ([]CoinSymbolRes, error) {
+func (c *Client) ChainAndCoin(req *ChainAndCoinReq) ([]CoinSymbolRes, error) {
 	url := fmt.Sprintf("%s/%s", c.BaseUrl, "finance/chain_coin")
+	bd, err := json.Marshal(req)
+	if err != nil {
+		return nil, err
+	}
 	// 加密数据
 	data := map[string]interface{}{}
+	bs, _ := json.Marshal(req)
+	json.Unmarshal(bs, &data)
 	token, err := c.SignHelper(c.AppID, c.Secret, 0, data)
 	if err != nil {
 		return nil, err
 	}
-	rs, err := c.DoPost(url, map[string]string{"App": c.AppID, "Access-Token": token}, "", true)
+	rs, err := c.DoPost(url, map[string]string{"App": c.AppID, "Access-Token": token}, string(bd), true)
 	if err != nil {
 		return nil, err
 	}

@@ -19,9 +19,10 @@ type Client struct {
 	AppID      string
 	Secret     string
 	BaseUrl    string
+	CompanyId  string
 }
 
-func NewClient(baseUrl, appID, secret string) (*Client, error) {
+func NewClient(baseUrl, appID, secret, CompanyId string) (*Client, error) {
 	client := new(Client)
 	client.HttpClient = &http.Client{
 		//Timeout: 500 * time.Millisecond,
@@ -38,6 +39,7 @@ func NewClient(baseUrl, appID, secret string) (*Client, error) {
 	client.AppID = appID
 	client.Secret = secret
 	client.BaseUrl = baseUrl
+	client.CompanyId = CompanyId
 	return client, nil
 }
 func (c *Client) DoPost(addr string, Header map[string]string, body string, jsonFormat bool) (string, error) {
