@@ -410,9 +410,9 @@ func (c *Client) CollectBalance(req *CollectBalanceReq) ([]CollectBalanceData, e
 
 //获取用户余额
 type UserBalanceReq struct {
-	MerchantId string `json:"merchant_id"`
-	AppId      string `json:"app_id"`
-	Uid        string `json:"uid"`
+	//MerchantId string `json:"merchant_id"`
+	AppId string `json:"app_id"`
+	Uid   string `json:"uid"`
 }
 type UserBalanceData struct {
 	Addr        string `protobuf:"bytes,1,opt,name=addr,proto3" json:"addr,omitempty"`
@@ -642,4 +642,26 @@ func (c *Client) ChainAndCoinList() (*GetChainAndCoinListRes, error) {
 		return nil, errors.New(res.Msg)
 	}
 	return res.Data.(*GetChainAndCoinListRes), nil
+}
+
+type CallBackReq struct {
+	Type int                    `json:"type"`
+	Data map[string]interface{} `json:"data"`
+	Sign string                 `json:"sign"`
+}
+
+func (c *Client) CallbackVerify(CallbackData []byte) error {
+	var callbackReq CallBackReq
+	callbackReq.Data = make(map[string]interface{})
+	json.Unmarshal(CallbackData, &callbackReq)
+
+	sign, err := c.SignHelper(c.AppID, c.Secret, 0, callbackReq.Data)
+	if err != nil {
+		return err
+	}
+	if sign != callbackReq.Sign {
+		return errors.New("sign err")
+	}
+
+	return nil
 }
