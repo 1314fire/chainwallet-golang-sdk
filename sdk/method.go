@@ -605,14 +605,20 @@ func (c *Client) DeposOrderList(req *DeposOrderListReq) ([]DeposOrderListData, e
 
 // 查询支持的所有链类型和币类型
 type CoinTypeRes struct {
-	CoinName  string `json:"coin_name"`
-	CoinType  int64  `json:"coin_type"`
-	Support   int8   `json:"support"`
-	ChainType int64  `json:"chain_type"`
-	Contract  string `json:"contract"`
-	Protocol  string `json:"protocol"`
-	Precision int8   `json:"precision"`
-	Main      int8   `json:"main"`
+	CoinName  string          `json:"coin_name"`
+	CoinType  int64           `json:"coin_type"`
+	Support   int8            `json:"support"`
+	ChainType int64           `json:"chain_type"`
+	Contract  string          `json:"contract"`
+	Protocol  string          `json:"protocol"`
+	Precision int8            `json:"precision"`
+	Main      int8            `json:"main"`
+	BtcValue  decimal.Decimal `json:"btc_value"`   // btc计价
+	CnyValue  decimal.Decimal `json:"cny_value"`   // 人民币计价
+	UsdValue  decimal.Decimal `json:"usd_value"`   // 美金计价
+	MinAmount decimal.Decimal `json:"min_amount"`  // 单笔最小限额
+	MaxAmount decimal.Decimal `json:"max_amount"`  // 单笔最大限额
+	MaxPerDay decimal.Decimal `json:"max_per_day"` // 单人单日限额
 }
 type ChainTypeRes struct {
 	ChainName string `json:"chain_name"`
